@@ -1,10 +1,15 @@
-## WenSolata Mono v4.622
+## WenSolata Mono v4.630
 
 This release combines Inconsolata 3.100 Latin glyphs with LXGW WenKai Mono
-Lite 1.522 CJK glyphs. The combined release version follows the source-version
-sum used by LXGW Bright Code: 3.100 + 1.522 = 4.622.
+Lite 1.530 CJK glyphs. The combined release version follows the source-version
+sum used by LXGW Bright Code: 3.100 + 1.530 = 4.630.
 The family is named WenSolata Mono, with localized Simplified Chinese family
 name 慰文楷.
+
+Changes since v4.622:
+
+- Update LXGW WenKai Mono Lite from 1.522 to 1.530. See its [release notes](https://github.com/lxgw/LxgwWenKai-Lite/releases/tag/v1.530).
+- Fix the `->` and `<-` discretionary ligatures, which did not form in v4.622.
 
 Included styles:
 

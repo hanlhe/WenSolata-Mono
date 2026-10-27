@@ -37,11 +37,11 @@ jobs:
           path: Inconsolata
           persist-credentials: false
 
-      - name: Check out LXGW WenKai Mono Lite 1.522
+      - name: Check out LXGW WenKai Mono Lite 1.530
         uses: actions/checkout@v7
         with:
           repository: lxgw/LxgwWenKai-Lite
-          ref: 4cddacbe244b0a24b10076369105f0495e5ec898
+          ref: b712c83d98acf977bacfb7fb010207802808bda9
           path: LxgwWenKai-Lite
           persist-credentials: false
 

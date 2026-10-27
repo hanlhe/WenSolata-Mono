@@ -21,7 +21,7 @@ INCONSOLATA = (
 WENKAI_DIR = ROOT.parent / "LxgwWenKai-Lite/fonts/TTF"
 FAMILY = "WenSolata Mono"
 FAMILY_ZH = "慰文楷"
-VERSION = "4.622"
+VERSION = "4.630"
 PROJECT_URL = "https://github.com/hanlhe/WenSolata-Mono"
 OFL_URL = "https://openfontlicense.org/open-font-license-official-text/"
 PREFIX = "WSWen_"
@@ -327,7 +327,7 @@ def main():
     )
     source_description = (
         f"Latin: Inconsolata 3.100 ({axes_description}); "
-        f"CJK: LXGW WenKai Mono Lite {wenkai_style} 1.522 "
+        f"CJK: LXGW WenKai Mono Lite {wenkai_style} 1.530 "
         f"({CJK_SCALE:.0%} outline scale; vertical scale anchored at baseline). "
         f"Release version {VERSION}."
     )
