@@ -25,7 +25,7 @@ The build pins the two source repositories to these revisions:
 
 | Source font | Font version | Source revision |
 | --- | --- | --- |
-| Inconsolata | 3.100 | [`fc1fc210`](https://github.com/cyrealtype/Inconsolata/commit/fc1fc21081558b39a2db43bfd9b65bf9acb50701) |
+| Inconsolata | 3.100 | [`fc1fc210`](https://github.com/googlefonts/Inconsolata/commit/fc1fc21081558b39a2db43bfd9b65bf9acb50701) |
 | LXGW WenKai Mono Lite | 1.530 | [`v1.530`](https://github.com/lxgw/LxgwWenKai-Lite/releases/tag/v1.530) |
 
 Inconsolata 3.100 has no release tag, so its row links the commit.

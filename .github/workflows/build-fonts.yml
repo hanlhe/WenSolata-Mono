@@ -32,7 +32,7 @@ jobs:
       - name: Check out Inconsolata 3.100
         uses: actions/checkout@v7
         with:
-          repository: cyrealtype/Inconsolata
+          repository: googlefonts/Inconsolata
           ref: fc1fc21081558b39a2db43bfd9b65bf9acb50701
           path: Inconsolata
           persist-credentials: false
