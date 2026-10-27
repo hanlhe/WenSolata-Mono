@@ -18,26 +18,23 @@ INCONSOLATA = (
     ROOT.parent
     / "Inconsolata/fonts/variable/Inconsolata[wdth,wght].ttf"
 )
-WENKAI_REGULAR = (
-    ROOT.parent
-    / "LxgwWenKai-Lite/fonts/TTF/LXGWWenKaiMonoLite-Regular.ttf"
-)
-WENKAI_LIGHT = (
-    ROOT.parent
-    / "LxgwWenKai-Lite/fonts/TTF/LXGWWenKaiMonoLite-Light.ttf"
-)
-WENKAI_MEDIUM = (
-    ROOT.parent
-    / "LxgwWenKai-Lite/fonts/TTF/LXGWWenKaiMonoLite-Medium.ttf"
-)
+WENKAI_DIR = ROOT.parent / "LxgwWenKai-Lite/fonts/TTF"
 FAMILY = "WenSolata Mono"
 FAMILY_ZH = "慰文楷"
+VERSION = "4.622"
 PROJECT_URL = "https://github.com/hanlhe/WenSolata-Mono"
 OFL_URL = "https://openfontlicense.org/open-font-license-official-text/"
 PREFIX = "WSWen_"
 LIGATURE_PREFIX = "WSLig_"
 LATIN_ADVANCE = 500
+CJK_SCALE = 0.9
 COMBINING_MARKS = range(0x0300, 0x0370)
+# Inconsolata axes, WenKai Mono Lite style, Chinese style name, weight class.
+STYLES = {
+    "Light": ({"wdth": 87.5, "wght": 300}, "Light", "细体", 300),
+    "Regular": ({"wdth": 87.5, "wght": 350}, "Regular", "常规", 400),
+    "Bold": ({"wdth": 90, "wght": 650}, "Medium", "粗体", 700),
+}
 
 
 def is_chinese_outline(cp):
@@ -71,32 +68,15 @@ def set_simplified_chinese_name(font, name_id, value):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--cjk-scale-x", type=float, default=1.0)
-    parser.add_argument("--cjk-scale-y", type=float, default=1.0)
-    parser.add_argument(
-        "--style", choices=("Light", "Regular", "Bold"), default="Regular"
-    )
+    parser.add_argument("--style", choices=STYLES, default="Regular")
     parser.add_argument("--output", type=Path)
     args = parser.parse_args()
-    if not 0 < args.cjk_scale_x <= 1:
-        parser.error("--cjk-scale-x must be greater than 0 and at most 1")
-    if not 0 < args.cjk_scale_y <= 1:
-        parser.error("--cjk-scale-y must be greater than 0 and at most 1")
 
-    latin_axes = {
-        "Light": {"wdth": 87.5, "wght": 300},
-        "Regular": {"wdth": 87.5, "wght": 350},
-        "Bold": {"wdth": 90, "wght": 650},
-    }[args.style]
+    latin_axes, wenkai_style, style_zh, weight_class = STYLES[args.style]
     if args.output is None:
         args.output = ROOT / "dist" / f"WenSolataMono-{args.style}.ttf"
 
-    wenkai_style, wenkai_source = {
-        "Light": ("Light", WENKAI_LIGHT),
-        "Regular": ("Regular", WENKAI_REGULAR),
-        "Bold": ("Medium", WENKAI_MEDIUM),
-    }[args.style]
-    base = TTFont(wenkai_source)
+    base = TTFont(WENKAI_DIR / f"LXGWWenKaiMonoLite-{wenkai_style}.ttf")
     latin = instantiateVariableFont(
         TTFont(INCONSOLATA),
         latin_axes,
@@ -112,44 +92,36 @@ def main():
         if is_chinese_outline(cp)
         and base["hmtx"].metrics[glyph_name][0] >= 800
     }
-    cjk_scaled = 0
-    if args.cjk_scale_x != 1.0 or args.cjk_scale_y != 1.0:
-        original_glyph_set = base.getGlyphSet()
-        glyf = base["glyf"]
-        hmtx = base["hmtx"].metrics
-        em = base["head"].unitsPerEm
-        x_offset = (1 - args.cjk_scale_x) * em / 2
-        y_offset = 0
-        vmtx = base["vmtx"].metrics if "vmtx" in base else None
-        vertical_origins = {}
-        replacements = {}
-        for glyph_name in cjk_glyph_names:
-            if vmtx is not None:
-                original_glyph = glyf[glyph_name]
-                original_glyph.recalcBounds(glyf)
-                vertical_origins[glyph_name] = (
-                    original_glyph.yMax + vmtx[glyph_name][1]
-                )
-            recording_pen = DecomposingRecordingPen(original_glyph_set)
-            original_glyph_set[glyph_name].draw(recording_pen)
-            pen = TTGlyphPen(None)
-            recording_pen.replay(TransformPen(
-                pen,
-                (args.cjk_scale_x, 0, 0, args.cjk_scale_y, x_offset, y_offset),
-            ))
-            replacements[glyph_name] = pen.glyph()
-        for glyph_name, glyph in replacements.items():
-            glyph.recalcBounds(glyf)
-            glyf.glyphs[glyph_name] = glyph
-            advance, _ = hmtx[glyph_name]
-            hmtx[glyph_name] = (advance, glyph.xMin or 0)
-            if vmtx is not None:
-                vertical_advance, _ = vmtx[glyph_name]
-                vmtx[glyph_name] = (
-                    vertical_advance,
-                    vertical_origins[glyph_name] - glyph.yMax,
-                )
-        cjk_scaled = len(replacements)
+    original_glyph_set = base.getGlyphSet()
+    glyf = base["glyf"]
+    hmtx = base["hmtx"].metrics
+    vmtx = base["vmtx"].metrics
+    x_offset = (1 - CJK_SCALE) * base["head"].unitsPerEm / 2
+    vertical_origins = {}
+    replacements = {}
+    for glyph_name in cjk_glyph_names:
+        original_glyph = glyf[glyph_name]
+        original_glyph.recalcBounds(glyf)
+        vertical_origins[glyph_name] = (
+            original_glyph.yMax + vmtx[glyph_name][1]
+        )
+        recording_pen = DecomposingRecordingPen(original_glyph_set)
+        original_glyph_set[glyph_name].draw(recording_pen)
+        pen = TTGlyphPen(None)
+        recording_pen.replay(TransformPen(
+            pen, (CJK_SCALE, 0, 0, CJK_SCALE, x_offset, 0)
+        ))
+        replacements[glyph_name] = pen.glyph()
+    for glyph_name, glyph in replacements.items():
+        glyph.recalcBounds(glyf)
+        glyf.glyphs[glyph_name] = glyph
+        advance, _ = hmtx[glyph_name]
+        hmtx[glyph_name] = (advance, glyph.xMin or 0)
+        vertical_advance, _ = vmtx[glyph_name]
+        vmtx[glyph_name] = (
+            vertical_advance,
+            vertical_origins[glyph_name] - glyph.yMax,
+        )
 
     base_cmap = base.getBestCmap()
     latin_cmap = latin.getBestCmap()
@@ -170,10 +142,7 @@ def main():
         for name in source_glyph_names
         if source_hmtx[name][0] > 0
     ).most_common(1)[0][0]
-    scale_x = 1.0
     latin_x_offset = (LATIN_ADVANCE - source_cell) / 2
-    glyf = base["glyf"]
-    hmtx = base["hmtx"].metrics
     converted_glyphs = {}
 
     def converted_glyph(source_name):
@@ -182,7 +151,7 @@ def main():
             source_glyph_set[source_name].draw(recording_pen)
             pen = TTGlyphPen(None)
             recording_pen.replay(
-                TransformPen(pen, (scale_x, 0, 0, 1, latin_x_offset, 0))
+                TransformPen(pen, (1, 0, 0, 1, latin_x_offset, 0))
             )
             converted_glyphs[source_name] = pen.glyph()
         return converted_glyphs[source_name]
@@ -215,7 +184,7 @@ def main():
             source_advance, source_lsb = source_hmtx[source_name]
             hmtx[target_name] = (
                 LATIN_ADVANCE if source_advance else 0,
-                round(source_lsb * scale_x + latin_x_offset),
+                round(source_lsb + latin_x_offset),
             )
         else:
             for cp, source_name in items:
@@ -266,7 +235,7 @@ def main():
         source_advance, source_lsb = source_hmtx[source_name]
         hmtx[target_name] = (
             round(source_advance / source_cell) * LATIN_ADVANCE,
-            round(source_lsb * scale_x + latin_x_offset),
+            round(source_lsb + latin_x_offset),
         )
 
     dlig_lookup = deepcopy(source_ligature_lookup)
@@ -321,7 +290,7 @@ def main():
         source_advance, source_lsb = source_hmtx[source_name]
         hmtx[target_name] = (
             LATIN_ADVANCE if source_advance else 0,
-            round(source_lsb * scale_x + latin_x_offset),
+            round(source_lsb + latin_x_offset),
         )
 
     # Update cmap tables only for glyphs that needed separate slots. The
@@ -338,44 +307,14 @@ def main():
     appended_order = [PREFIX + name for name in sorted(appended_source_names)]
     new_order = list(dict.fromkeys(old_order + appended_order + ligature_order))
     base.setGlyphOrder(new_order)
-    for glyph_name in new_order:
-        if glyph_name not in base["hmtx"].metrics:
-            source_name = glyph_name.removeprefix(PREFIX)
-            source_advance, source_lsb = source_hmtx[source_name]
-            base["hmtx"].metrics[glyph_name] = (
-                LATIN_ADVANCE if source_advance else 0,
-                round(source_lsb * scale_x + latin_x_offset),
-            )
-        if "vmtx" in base and glyph_name not in base["vmtx"].metrics:
-            glyph = glyf[glyph_name]
-            glyph.recalcBounds(glyf)
-            vertical_origin = round(base["head"].unitsPerEm * 0.88)
-            base["vmtx"].metrics[glyph_name] = (
-                base["head"].unitsPerEm,
-                vertical_origin - (glyph.yMax or 0),
-            )
-    base["maxp"].numGlyphs = len(new_order)
-    base["hhea"].numberOfHMetrics = len(new_order)
-
-    # Include the imported outlines in the global head bounds.
-    boxes = [(base["head"].xMin, base["head"].yMin,
-              base["head"].xMax, base["head"].yMax)]
-    for glyph_name in list(target_codepoints) + appended_order + ligature_order:
+    vertical_origin = round(base["head"].unitsPerEm * 0.88)
+    for glyph_name in appended_order + ligature_order:
         glyph = glyf[glyph_name]
         glyph.recalcBounds(glyf)
-        if glyph.xMin is not None:
-            boxes.append((glyph.xMin, glyph.yMin, glyph.xMax, glyph.yMax))
-    if boxes:
-        head = base["head"]
-        head.xMin = min(box[0] for box in boxes)
-        head.yMin = min(box[1] for box in boxes)
-        head.xMax = max(box[2] for box in boxes)
-        head.yMax = max(box[3] for box in boxes)
-
-    # The base font's layout tables refer to its original glyphs and remain
-    # valid. Remove any stale signature before saving modified font data.
-    if "DSIG" in base:
-        del base["DSIG"]
+        vmtx[glyph_name] = (
+            base["head"].unitsPerEm,
+            vertical_origin - (glyph.yMax or 0),
+        )
 
     copyright_notice = (
         "Copyright 2006 The Inconsolata Project Authors.\n"
@@ -389,16 +328,16 @@ def main():
     source_description = (
         f"Latin: Inconsolata 3.100 ({axes_description}); "
         f"CJK: LXGW WenKai Mono Lite {wenkai_style} 1.522 "
-        "(90% outline scale; vertical scale anchored at baseline). "
-        "Release version 4.622."
+        f"({CJK_SCALE:.0%} outline scale; vertical scale anchored at baseline). "
+        f"Release version {VERSION}."
     )
     names = {
         0: copyright_notice,
         1: FAMILY,
         2: args.style,
-        3: f"{FAMILY} {args.style} 4.622",
+        3: f"{FAMILY} {args.style} {VERSION}",
         4: f"{FAMILY} {args.style}",
-        5: "Version 4.622",
+        5: f"Version {VERSION}",
         6: FAMILY.replace(" ", "") + f"-{args.style}",
         8: "WenSolata Mono Project",
         9: "Hanlin He; Inconsolata Project Authors; LXGW; Klee Project Authors",
@@ -412,29 +351,22 @@ def main():
     }
     for name_id, value in names.items():
         set_english_name(base, name_id, value)
-    style_zh = {"Light": "细体", "Regular": "常规", "Bold": "粗体"}[
-        args.style
-    ]
     localized_names = {
         1: FAMILY_ZH,
         2: style_zh,
         4: f"{FAMILY_ZH} {style_zh}",
         16: FAMILY_ZH,
-        17: {"Light": "细体", "Regular": "常规", "Bold": "粗体"}[
-            args.style
-        ],
+        17: style_zh,
     }
     for name_id, value in localized_names.items():
         set_simplified_chinese_name(base, name_id, value)
-    base["head"].fontRevision = 4.622
+    base["head"].fontRevision = float(VERSION)
     if args.style == "Bold":
         base["head"].macStyle |= 1
     else:
         base["head"].macStyle &= ~1
     base["OS/2"].achVendID = "WSMT"
-    base["OS/2"].usWeightClass = {
-        "Light": 300, "Regular": 400, "Bold": 700
-    }[args.style]
+    base["OS/2"].usWeightClass = weight_class
     base["OS/2"].fsSelection &= ~((1 << 5) | (1 << 6))
     if args.style == "Bold":
         base["OS/2"].fsSelection |= 1 << 5
@@ -444,11 +376,11 @@ def main():
     # uses its Simplified Chinese glyph forms, so advertise Simplified only.
     base["OS/2"].ulCodePageRange1 |= 1 << 18
     base["OS/2"].ulCodePageRange1 &= ~(1 << 20)
-    if "meta" in base:
-        base["meta"].data["dlng"] = "Latn,Hans"
-        base["meta"].data["slng"] = "Latn,Hans"
+    base["meta"].data["dlng"] = "Latn,Hans"
+    base["meta"].data["slng"] = "Latn,Hans"
 
     args.output.parent.mkdir(parents=True, exist_ok=True)
+    # Saving recalculates maxp, hhea, and head bounds for the merged glyphs.
     base.save(args.output)
     print(f"Wrote {args.output}")
     print(
@@ -459,9 +391,8 @@ def main():
         f"Latin advances are {LATIN_ADVANCE}/{base['head'].unitsPerEm} em; "
         f"source outlines are unscaled and centered with "
         f"{latin_x_offset:.1f} units of added left sidebearing. "
-        f"Scaled {cjk_scaled} Chinese glyph outlines "
-        f"({args.cjk_scale_x:.3f}x horizontally and "
-        f"{args.cjk_scale_y:.3f}x vertically); their advances are unchanged."
+        f"Scaled {len(replacements)} Chinese glyph outlines by "
+        f"{CJK_SCALE:.3f}x; their advances are unchanged."
     )
 
 
