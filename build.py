@@ -198,6 +198,16 @@ def main():
             appended_source_names.add(source_name)
             appended_cmaps[cp] = PREFIX + source_name
 
+    # Update cmap tables only for glyphs that needed separate slots. The
+    # combining marks and any non-Latin aliases keep their original mappings.
+    for subtable in base["cmap"].tables:
+        if subtable.format == 14:
+            continue
+        for cp, target_name in appended_cmaps.items():
+            if subtable.format == 4 and cp > 0xFFFF:
+                continue
+            subtable.cmap[cp] = target_name
+
     # Bring over Inconsolata's discretionary ligature substitution and its
     # unencoded result glyphs. Inputs are resolved through Unicode so the
     # lookup follows any renamed glyph slots used by the merged cmap.
@@ -292,16 +302,6 @@ def main():
             LATIN_ADVANCE if source_advance else 0,
             round(source_lsb + latin_x_offset),
         )
-
-    # Update cmap tables only for glyphs that needed separate slots. The
-    # combining marks and any non-Latin aliases keep their original mappings.
-    for subtable in base["cmap"].tables:
-        if subtable.format == 14:
-            continue
-        for cp, target_name in appended_cmaps.items():
-            if subtable.format == 4 and cp > 0xFFFF:
-                continue
-            subtable.cmap[cp] = target_name
 
     old_order = base.getGlyphOrder()
     appended_order = [PREFIX + name for name in sorted(appended_source_names)]

@@ -108,10 +108,18 @@ jobs:
               assert not os2.ulCodePageRange1 & (1 << 20)
               assert font["meta"].data["dlng"] == "Latn,Hans"
               assert font["meta"].data["slng"] == "Latn,Hans"
-              assert any(
-                  record.FeatureTag == "dlig"
-                  for record in font["GSUB"].table.FeatureList.FeatureRecord
-              )
+              gsub = font["GSUB"].table
+              dlig_inputs = [
+                  [first, *ligature.Component]
+                  for record in gsub.FeatureList.FeatureRecord
+                  if record.FeatureTag == "dlig"
+                  for index in record.Feature.LookupListIndex
+                  for subtable in gsub.LookupList.Lookup[index].SubTable
+                  for first, ligatures in subtable.ligatures.items()
+                  for ligature in ligatures
+              ]
+              for text in ("->", "<-", "=>", ">=", "<=", "===", "!=="):
+                  assert [cmap[ord(char)] for char in text] in dlig_inputs, text
           source_path = Path("../Inconsolata/fonts/variable/Inconsolata[wdth,wght].ttf")
           for path, axes in zip(
               paths,
