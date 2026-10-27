@@ -32,7 +32,9 @@ Inconsolata 3.100 has no release tag, so its row links the commit.
 
 The combined release version is their sum (`3.100 + 1.530 = 4.630`), following
 the convention used by [LXGW Bright Code](https://github.com/lxgw/LxgwBright-Code).
-The first release tag is `v4.622`.
+A WenSolata-only fix on the same sources adds a revision, such as `4.630.1`
+tagged `v4.630.1`; published release packages are never replaced. The first
+release tag is `v4.622`.
 
 Discretionary ligatures are included as the `dlig` feature. Enable them in the
 application that renders the font. For CSS:

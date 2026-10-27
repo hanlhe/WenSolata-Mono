@@ -21,7 +21,7 @@ INCONSOLATA = (
 WENKAI_DIR = ROOT.parent / "LxgwWenKai-Lite/fonts/TTF"
 FAMILY = "WenSolata Mono"
 FAMILY_ZH = "慰文楷"
-VERSION = "4.630"
+VERSION = "4.630"  # Source version sum; append .N for a WenSolata-only fix.
 PROJECT_URL = "https://github.com/hanlhe/WenSolata-Mono"
 OFL_URL = "https://openfontlicense.org/open-font-license-official-text/"
 PREFIX = "WSWen_"
@@ -360,7 +360,8 @@ def main():
     }
     for name_id, value in localized_names.items():
         set_simplified_chinese_name(base, name_id, value)
-    base["head"].fontRevision = float(VERSION)
+    # fontRevision is a number, so a .N revision appears only in the names.
+    base["head"].fontRevision = float(".".join(VERSION.split(".")[:2]))
     if args.style == "Bold":
         base["head"].macStyle |= 1
     else:
