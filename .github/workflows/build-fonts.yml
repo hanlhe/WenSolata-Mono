@@ -13,9 +13,6 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      pages: write
     outputs:
       package_name: ${{ steps.package.outputs.name }}
     steps:
@@ -66,12 +63,6 @@ jobs:
         env:
           WEB_SOURCE: ${{ github.workspace }}/WenSolata-Pages
         run: ./build-webfonts.sh
-
-      - name: Configure GitHub Pages
-        if: github.ref == 'refs/heads/main'
-        uses: actions/configure-pages@v5
-        with:
-          enablement: true
 
       - name: Check font metadata and metrics
         working-directory: WenSolata-Mono
