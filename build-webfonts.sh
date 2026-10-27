@@ -13,7 +13,9 @@ from pathlib import Path
 from fontTools.ttLib import woff2
 
 root = Path(sys.argv[1])
-web_source = Path(os.environ.get("WEB_SOURCE", root / "web")).resolve()
+web_source = Path(
+    os.environ.get("WEB_SOURCE", root.parent / "WenSolata-Pages")
+).resolve()
 site = root / "site"
 if not web_source.is_dir():
     raise SystemExit(f"Web page source directory not found: {web_source}")

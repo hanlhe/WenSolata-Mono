@@ -92,16 +92,16 @@ system's font manager or include them with an application. The family name is
 `WenSolata Mono`; all three styles are static fonts.
 
 The page templates live on the `pages-source` branch, separate from the font
-sources on `main`. For a local web build, check out that branch and pass its
-directory to the script:
+sources on `main`. For a local web build, check out that branch as the sibling
+`WenSolata-Pages` directory:
 
 ```sh
 git worktree add ../WenSolata-Pages pages-source
-WEB_SOURCE="../WenSolata-Pages" ./build-webfonts.sh
+./build-webfonts.sh
 ```
 
 This writes the generated site to `site/` and requires the WOFF2 extra in
-`requirements.txt`.
+`requirements.txt`. Set `WEB_SOURCE` to build from another directory.
 
 ## Web fonts
 

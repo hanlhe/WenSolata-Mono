@@ -60,8 +60,6 @@ jobs:
 
       - name: Build WOFF2 web fonts and site
         working-directory: WenSolata-Mono
-        env:
-          WEB_SOURCE: ${{ github.workspace }}/WenSolata-Pages
         run: ./build-webfonts.sh
 
       - name: Check font metadata and metrics
