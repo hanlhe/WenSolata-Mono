@@ -22,13 +22,6 @@ jobs:
           path: WenSolata-Mono
           persist-credentials: false
 
-      - name: Check out Pages source
-        uses: actions/checkout@v7
-        with:
-          ref: pages-source
-          path: WenSolata-Pages
-          persist-credentials: false
-
       - name: Check out Inconsolata 3.100
         uses: actions/checkout@v7
         with:

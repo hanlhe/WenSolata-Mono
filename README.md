@@ -93,17 +93,9 @@ and `dist/WenSolataMono-Bold.ttf`. Install the TTF files with your operating
 system's font manager or include them with an application. The family name is
 `WenSolata Mono`; all three styles are static fonts.
 
-The page templates live on the `pages-source` branch, separate from the font
-sources on `main`. For a local web build, check out that branch as the sibling
-`WenSolata-Pages` directory:
-
-```sh
-git worktree add ../WenSolata-Pages pages-source
-./build-webfonts.sh
-```
-
-This writes the generated site to `site/` and requires the WOFF2 extra in
-`requirements.txt`. Set `WEB_SOURCE` to build from another directory.
+`./build-webfonts.sh` combines the page templates in `web/` with WOFF2 copies
+of the fonts. It writes the generated site to `site/` and requires the WOFF2
+extra in `requirements.txt`.
 
 ## Web fonts
 
@@ -120,9 +112,7 @@ Then use `WenSolata Mono` as the CSS font family. The stylesheet defines weights
 ## Automated build and release
 
 GitHub Actions rebuilds the Light, Regular, and Bold fonts from the pinned sources on
-pushes, pull requests, and manual runs. The site templates are kept on
-`pages-source`, and the workflow combines them with the generated WOFF2 files.
-It publishes the WOFF2 files and CSS
+pushes, pull requests, and manual runs. It publishes the generated site
 to [GitHub Pages](https://hanlhe.github.io/WenSolata-Mono/) on pushes to `main`,
 and creates a GitHub Release with the TTFs, web fonts, CSS, and `OFL.txt` when
 a `v*` tag is pushed. The first release tag is `v4.622`.
