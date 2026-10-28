@@ -117,7 +117,9 @@ GitHub Actions rebuilds the Light, Regular, and Bold fonts from the pinned sourc
 pushes, pull requests, and manual runs. It publishes the generated site
 to [GitHub Pages](https://hanlhe.github.io/WenSolata-Mono/) on pushes to `main`,
 and creates a GitHub Release with the TTFs, web fonts, CSS, and `OFL.txt` when
-a `v*` tag is pushed. The first release tag is `v4.622`.
+a `v*` tag is pushed. The release job then points the
+[Homebrew cask](https://github.com/hanlhe/homebrew-wensolata-mono) at the new
+package. The first release tag is `v4.622`.
 
 WenKai's combining diacritics, variation sequence data, vertical metrics, and
 OpenType layout tables are retained. Inconsolata's `dlig` feature is merged
