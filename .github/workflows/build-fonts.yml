@@ -64,9 +64,12 @@ jobs:
         working-directory: WenSolata-Mono
         run: |
           python - <<'PY'
+          import re
           from pathlib import Path
           from fontTools.ttLib import TTFont
           from fontTools.varLib.instancer import instantiateVariableFont
+
+          import build
 
           paths = [
               Path("dist/WenSolataMono-Light.ttf"),
@@ -134,6 +137,23 @@ jobs:
               cjk_outlines.append(font["glyf"][glyph_name].coordinates)
           assert cjk_outlines[0] != cjk_outlines[1]
           assert cjk_outlines[1] != cjk_outlines[2]
+
+          # Hand-edited version strings must match the pinned source fonts.
+          def source_version(path):
+              name = TTFont(path)["name"].getDebugName(5)
+              return re.match(r"Version (\d+\.\d+)", name)[1]
+          inconsolata = source_version(source_path)
+          wenkai = source_version(
+              "../LxgwWenKai-Lite/fonts/TTF/LXGWWenKaiMonoLite-Regular.ttf"
+          )
+          total = f"{float(inconsolata) + float(wenkai):.3f}"
+          assert build.VERSION.split(".")[:2] == total.split("."), build.VERSION
+          for path in paths:
+              description = TTFont(path)["name"].getDebugName(10)
+              assert f"Inconsolata {inconsolata} " in description, description
+              assert f" {wenkai} (" in description, description
+          page = Path("web/index.html").read_text(encoding="utf-8")
+          assert f"Inconsolata {inconsolata} + LXGW WenKai Mono Lite {wenkai}" in page
           PY
 
       - name: Package fonts and licenses
