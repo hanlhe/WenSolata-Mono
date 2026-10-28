@@ -80,7 +80,9 @@ See the [official OFL FAQ](https://openfontlicense.org/ofl-faq/) for details.
 
 ## Build
 
-The build uses the sibling `Inconsolata` and `LxgwWenKai-Lite` checkouts.
+Prebuilt fonts are attached to each
+[GitHub Release](https://github.com/hanlhe/WenSolata-Mono/releases). The build
+uses the sibling `Inconsolata` and `LxgwWenKai-Lite` checkouts.
 Install the dependency and build all three weights:
 
 ```sh
