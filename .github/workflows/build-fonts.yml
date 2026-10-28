@@ -191,8 +191,9 @@ jobs:
         run: |
           # Never replace a published package; release a fix as a new revision.
           if gh release view "$GITHUB_REF_NAME" >/dev/null 2>&1; then
-            gh release upload "$GITHUB_REF_NAME" \
-              "release-assets/$PACKAGE_NAME"
+            gh release view "$GITHUB_REF_NAME" --json assets --jq '.assets[].name' |
+              grep -qxF "$PACKAGE_NAME" ||
+              gh release upload "$GITHUB_REF_NAME" "release-assets/$PACKAGE_NAME"
             gh release edit "$GITHUB_REF_NAME" --draft=false \
               --title "WenSolata Mono $GITHUB_REF_NAME" \
               --notes-file RELEASE-NOTES.md
